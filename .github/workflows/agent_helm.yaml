@@ -24,6 +24,10 @@ jobs:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - uses: azure/setup-helm@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }} # only needed if version is 'latest'
+        id: install
       - uses: 'azure/CLI@v1'
         with:
           azcliversion: 2.44.1
@@ -31,7 +35,7 @@ jobs:
             helm dependency build
             helm package "./helm/scaled-azdo-build-agent" --app-version "${{env.HELM_APP_VERSION}}" --version ${{env.HELM_CHART_VERSION}}
 
-            acrName="${{vars.RESOURCE_PREFIX}}acr"
+            export acrName="${{vars.RESOURCE_PREFIX}}acr"
             accessToken=$(az acr login --name "$acrName" --expose-token --query accessToken -o tsv)
             echo $accessToken | helm registry login --username "00000000-0000-0000-0000-000000000000" --password-stdin "$acrName.azurecr.io"
 
