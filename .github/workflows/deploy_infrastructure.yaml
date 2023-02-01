@@ -23,4 +23,6 @@ jobs:
         with:
           azcliversion: 2.44.1
           inlineScript: |
+            az feature register --name AKS-KedaPreview --namespace Microsoft.ContainerService
+            az provider register -n Microsoft.ContainerService
             az deployment sub create -f "./infrastructure/core/main.bicep" --location "${{vars.LOCATION}}" -p resourcePrefix="${{vars.RESOURCE_PREFIX}}"

@@ -5,7 +5,7 @@ param resourcePrefix string
 var resourceGroupName = '${resourcePrefix}-rg'
 param resourceGroupLocation string = deployment().location
 
-var acrName = '${resourcePrefix}-acr'
+var acrName = '${resourcePrefix}acr'
 var aksName = '${resourcePrefix}-aks'
 
 
