@@ -30,7 +30,6 @@ jobs:
         id: install
       - name: helm package
         run: |
-          helm dependency build
           helm package "./helm/scaled-azdo-build-agent" --app-version "${{env.HELM_APP_VERSION}}" --version "${{env.HELM_CHART_VERSION}}"
       - uses: 'azure/CLI@v1'
         with:
