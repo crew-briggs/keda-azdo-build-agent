@@ -1,0 +1,26 @@
+name: 'Deploy Base Infrastructure'
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy_infrastructure:
+    runs-on: ubuntu-latest
+    environment: azdo
+    permissions:
+      id-token: write
+    steps:
+      # checkout the repo
+      - name: 'Checkout GitHub Action'
+        uses: actions/checkout@v3
+      - uses: 'azure/login@v1'
+        name: 'Login to Azure'
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - uses: 'azure/CLI@v1'
+        with:
+          azcliversion: 2.44.1
+          inlineScript: |
+            az deployment sub create --template-file './infrastructure/core/main.bicep' --location ${{env.LOCATION}} -p resourcePrefix="${{env.RESOURCE_GROUP}}"
