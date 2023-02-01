@@ -23,4 +23,4 @@ jobs:
         with:
           azcliversion: 2.44.1
           inlineScript: |
-            az deployment sub create --template-file './infrastructure/core/main.bicep' --location ${{env.LOCATION}} -p resourcePrefix="${{env.RESOURCE_GROUP}}"
+            az deployment sub create -f "./infrastructure/core/main.bicep" --location "${{env.LOCATION}}" -p resourcePrefix="${{env.RESOURCE_GROUP}}"
