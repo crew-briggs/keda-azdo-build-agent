@@ -24,4 +24,4 @@ jobs:
           azcliversion: 2.44.1
           inlineScript: |
             acrName="${{vars.RESOURCE_PREFIX}}acr"
-            az acr build -r $acrName -t "azdo-build-agent:latest" -t "azdo-build-agent:${{ github.run_id }}" "./src/azdo-build-agent"
+            az acr build -r $acrName -t "azdo-build-agent:latest" -t "azdo-build-agent:${{ github.run_id }}" "./src/azdo_build_agent"
