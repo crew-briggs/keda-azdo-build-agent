@@ -28,13 +28,14 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }} # only needed if version is 'latest'
         id: install
-      - name: helm package
-        run: |
-          helm package "./helm/scaled-azdo-build-agent" --app-version "${{env.HELM_APP_VERSION}}" --version "${{env.HELM_CHART_VERSION}}"
       - uses: 'azure/CLI@v1'
         with:
           azcliversion: 2.44.1
           inlineScript: |
             acrName="${{vars.RESOURCE_PREFIX}}acr"
-            az acr helm push -n $acrName "${{env.HELM_CHART_NAME}}-${{env.HELM_CHART_VERSION}}.tgz" --force
-            
+            accessToken=$(az acr login --name '$(AcrName)' --expose-token --query accessToken -o tsv)
+      - name: helm package and push
+        run: |
+          helm package "./helm/scaled-azdo-build-agent" --app-version "${{env.HELM_APP_VERSION}}" --version "${{env.HELM_CHART_VERSION}"
+          echo $accessToken | helm registry login --username "00000000-0000-0000-0000-000000000000" --password-stdin "$acrName.azurecr.io"
+          helm push "${{env.HELM_CHART_NAME}}-${{env.HELM_CHART_VERSION}}.tgz" "oci://$acrName.azurecr.io"
