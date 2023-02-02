@@ -26,3 +26,14 @@ jobs:
             az feature register --name AKS-KedaPreview --namespace Microsoft.ContainerService
             az provider register -n Microsoft.ContainerService
             az deployment sub create -f "./infrastructure/core/main.bicep" --location "${{vars.LOCATION}}" -p resourcePrefix="${{vars.RESOURCE_PREFIX}}"
+      - uses: azure/setup-helm@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }} # only needed if version is 'latest'
+        id: install
+      - name: install keda (bicep method is broken)
+        run: |
+          az aks get-credentials --name "${{ vars.RESOURCE_PREFIX }}-aks" --resource-group "${{ vars.RESOURCE_PREFIX }}-rg"
+          helm repo add kedacore https://kedacore.github.io/charts
+          helm repo update
+          kubectl create namespace keda
+          helm install keda kedacore/keda --namespace keda
