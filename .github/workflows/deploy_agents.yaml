@@ -35,13 +35,12 @@ jobs:
         run: |
           az aks get-credentials --name "${{ env.AKS_NAME }}" --resource-group "${{ env.RESOURCE_GROUP }}"
           acrCred=$(az acr credential show -n "${{ env.ACR_NAME }}" --query passwords[0].value -o tsv)
-          helm version
 
           accessToken=$(az acr login --name "${{env.ACR_NAME}}" --expose-token --query accessToken -o tsv)
           echo $accessToken | helm registry login --username "00000000-0000-0000-0000-000000000000" --password-stdin "${{env.ACR_NAME}}.azurecr.io"
 
           helm upgrade ${{env.HELM_RELEASE_NAME}} \
-            "${{env.ACR_NAME}}.azurecr.io/scaled-azdo-build-agent:${{env.HELM_CHART_VERSION}}" \
+            "oci://${{env.ACR_NAME}}.azurecr.io/scaled-azdo-build-agent:${{env.HELM_CHART_VERSION}}" \
             --install \
             --wait \
             --set image.repository="${{env.ACR_NAME}}.azurecr.io/azdo-build-agent" \
