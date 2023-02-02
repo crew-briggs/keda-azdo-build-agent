@@ -40,5 +40,5 @@ jobs:
         run: |
           echo ${{ env.ACRNAME }} 
           helm package "./helm/scaled-azdo-build-agent" --app-version "${{env.HELM_APP_VERSION}}" --version "${{env.HELM_CHART_VERSION}}"
-          echo ${{ env.ACCESSTOKEN }} | helm registry login --username "00000000-0000-0000-0000-000000000000" --password-stdin "$acrName.azurecr.io"
-          helm push "${{env.HELM_CHART_NAME}}-${{env.HELM_CHART_VERSION}}.tgz" "oci://${{ env.ACRNAME}}.azurecr.io"
+          echo ${{ env.ACCESSTOKEN }} | helm registry login --username "00000000-0000-0000-0000-000000000000" --password-stdin "${{env.ACRNAME}}.azurecr.io"
+          helm push "${{env.HELM_CHART_NAME}}-${{env.HELM_CHART_VERSION}}.tgz" "oci://${{env.ACRNAME}}.azurecr.io"
