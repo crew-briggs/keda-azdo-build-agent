@@ -4,7 +4,6 @@ on:
   workflow_dispatch:
 
 env:
-  HELM_CHART_VERSION: "1.0.4073768388"
   HELM_CHART_NAME: scaled-azdo-build-agent
   HELM_RELEASE_NAME: my-agents
   AGENT_IMAGE_VERSION: "latest"
@@ -40,7 +39,8 @@ jobs:
           echo $accessToken | helm registry login --username "00000000-0000-0000-0000-000000000000" --password-stdin "${{env.ACR_NAME}}.azurecr.io"
 
           helm upgrade ${{env.HELM_RELEASE_NAME}} \
-            "oci://${{env.ACR_NAME}}.azurecr.io/scaled-azdo-build-agent:${{vars.HELM_CHART_VERSION}}" \
+            "oci://${{env.ACR_NAME}}.azurecr.io/${{env.HELM_CHART_NAME}}" \
+            --version "${{vars.HELM_CHART_VERSION}}" \
             --install \
             --wait \
             --set image.repository="${{env.ACR_NAME}}.azurecr.io/azdo-build-agent" \
@@ -54,7 +54,7 @@ jobs:
       - name: disable placeholder agent
         run: |
           agentPool="${{vars.AZDO_AGENT_POOL}}"
-          agentName="${{env.HELM_RELEASE_NAME}}-scaled-azdo-build-agent-placeholder"
+          agentName="${{env.HELM_RELEASE_NAME}}-${{env.HELM_CHART_NAME}}-placeholder"
           echo "$agentName"
           
           poolId=$(curl -f -s -u :${{secrets.AZDO_PAT}} "${{secrets.AZDO_URL}}/_apis/distributedtask/pools?poolName=$agentPool&api-version=7.1-preview.1" | jq ".value[0].id")
