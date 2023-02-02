@@ -33,7 +33,7 @@ jobs:
           azcliversion: 2.44.1
           inlineScript: |
             acrName="${{vars.RESOURCE_PREFIX}}acr"
-            accessToken=$(az acr login --name '$(AcrName)' --expose-token --query accessToken -o tsv)
+            accessToken=$(az acr login --name '$acrName' --expose-token --query accessToken -o tsv)
       - name: helm package and push
         run: |
           helm package "./helm/scaled-azdo-build-agent" --app-version "${{env.HELM_APP_VERSION}}" --version "${{env.HELM_CHART_VERSION}}"
