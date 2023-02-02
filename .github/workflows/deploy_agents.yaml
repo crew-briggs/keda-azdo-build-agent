@@ -40,20 +40,20 @@ jobs:
           echo $accessToken | helm registry login --username "00000000-0000-0000-0000-000000000000" --password-stdin "${{env.ACR_NAME}}.azurecr.io"
 
           helm upgrade ${{env.HELM_RELEASE_NAME}} \
-            "oci://${{env.ACR_NAME}}.azurecr.io/scaled-azdo-build-agent:${{env.HELM_CHART_VERSION}}" \
+            "oci://${{env.ACR_NAME}}.azurecr.io/scaled-azdo-build-agent:${{vars.HELM_CHART_VERSION}}" \
             --install \
             --wait \
             --set image.repository="${{env.ACR_NAME}}.azurecr.io/azdo-build-agent" \
-            --set image.tag="${{env.DOCKER_IMAGE_TAG}}" \
+            --set image.tag="${{vars.DOCKER_IMAGE_TAG}}" \
             --set azdo.url="${{secrets.AZDO_URL}}" \
             --set azdo.agentManagementToken="${{secrets.AZDO_PAT}}" \
-            --set azdo.pool.name="${{env.AZDO_AGENT_POOL}}" \
+            --set azdo.pool.name="${{vars.AZDO_AGENT_POOL}}" \
             --set imageCredentials.registry="${{env.ACR_NAME}}.azurecr.io" \
             --set imageCredentials.username="${{env.ACR_NAME}}" \
             --set imageCredentials.password="$acrCred"
       - name: disable placeholder agent
         run: |
-          agentPool="${{env.AZDO_AGENT_POOL}}"
+          agentPool="${{vars.AZDO_AGENT_POOL}}"
           agentName="${{env.HELM_RELEASE_NAME}}-scaled-azdo-build-agent-placeholder"
           echo "$agentName"
           
