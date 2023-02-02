@@ -4,12 +4,13 @@ on:
   workflow_dispatch:
 
 env:
-  HELM_APP_VERSION: "1.0.${{ github.run_id }}"
-  HELM_CHART_VERSION: "1.0.${{ github.run_id }}"
+  HELM_CHART_VERSION: "1.0.4073768388"
   HELM_CHART_NAME: scaled-azdo-build-agent
-  ACRNAME: "${{vars.RESOURCE_PREFIX}}acr"
-  AKSNAME: "${{vars.RESOURCE_PREFIX}}-aks"
-  RESOURCEGROUP: "${{vars.RESOURCE_PREFIX}}-rg"
+  HELM_RELEASE_NAME: my-agents
+  AGENT_IMAGE_VERSION: "latest"
+  ACR_NAME: "${{vars.RESOURCE_PREFIX}}acr"
+  AKS_NAME: "${{vars.RESOURCE_PREFIX}}-aks"
+  RESOURCE_GROUP: "${{vars.RESOURCE_PREFIX}}-rg"
 jobs:
   build_image:
     runs-on: ubuntu-latest
@@ -32,5 +33,38 @@ jobs:
         id: installhelm
       - name: deploy helm chart
         run: |
-          az aks get-credentials --name "${{ env.AKSNAME }}" --resource-group "${{ env.RESOURCEGROUP }}"
+          az aks get-credentials --name "${{ env.AKS_NAME }}" --resource-group "${{ env.RESOURCE_GROUP }}"
+          acrCred=$(az acr credential show -n "${{ env.ACR_NAME }}" --query passwords[0].value -o tsv)
           helm version
+
+          accessToken=$(az acr login --name "${{env.ACR_NAME}}" --expose-token --query accessToken -o tsv)
+          echo $accessToken | helm registry login --username "00000000-0000-0000-0000-000000000000" --password-stdin "${{env.ACR_NAME}}.azurecr.io"
+
+          helm upgrade ${{env.HELM_RELEASE_NAME}} \
+            "${{env.ACR_NAME}}.azurecr.io/scaled-azdo-build-agent:${{env.HELM_CHART_VERSION}}" \
+            --install \
+            --wait \
+            --set image.repository="${{env.ACR_NAME}}.azurecr.io/azdo-build-agent" \
+            --set image.tag="${{env.DOCKER_IMAGE_TAG}}" \
+            --set azdo.url="${{secrets.AZDO_URL}}" \
+            --set azdo.agentManagementToken="${{secrets.AZDO_PAT}}" \
+            --set azdo.pool.name="${{env.AZDO_AGENT_POOL}}" \
+            --set imageCredentials.registry="${{env.ACR_NAME}}.azurecr.io" \
+            --set imageCredentials.username="${{env.ACR_NAME}}" \
+            --set imageCredentials.password="$acrCred"
+      - name: disable placeholder agent
+        run: |
+          agentPool="${{env.AZDO_AGENT_POOL}}"
+          agentName="${{env.HELM_RELEASE_NAME}-scaled-azdo-build-agent-placeholder"
+          echo "$agentName"
+          
+          poolId=$(curl -f -s -u :${{secrets.AZDO_PAT}} "${{ecrets.AZDO_URL}}/_apis/distributedtask/pools?poolName=$agentPool&api-version=7.1-preview.1" | jq ".value[0].id")
+          echo "pool id: $poolId"
+          
+          agentId=$(curl -f -s -u :${{secrets.AZDO_PAT}} "${{ecrets.AZDO_URL}}/_apis/distributedtask/pools/$poolId/agents?api-version=7.1-preview.1" | jq -r ".value | map(select(.name == \"$agentName\")) | .[0] | .id")
+          echo "agentId id: $agentId"
+
+          curl -s -f -u :${{secrets.AZDO_PAT}} -X PATCH -d "{ \"id\": \"$agentId\", \"enabled\": \"false\", \"status\": \"offline\"}" -H "Content-Type: application/json" "${{ecrets.AZDO_URL}}/_apis/distributedtask/pools/$poolId/agents/$agentId?api-version=7.1-preview.1"
+
+
+
