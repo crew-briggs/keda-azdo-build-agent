@@ -30,9 +30,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }} # only needed if version is 'latest'
         id: installhelm
-      - uses: 'azure/CLI@v1'
-        with:
-          azcliversion: 2.44.1
-          inlineScript: |
-            az aks get-credentials --name "${{ env.AKSNAME }}" --resource-group "${{ env.RESOURCEGROUP }}"
-            helm version
+      - name: deploy helm chart
+        run: |
+          az aks get-credentials --name "${{ env.AKSNAME }}" --resource-group "${{ env.RESOURCEGROUP }}"
+          helm version
