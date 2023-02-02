@@ -32,8 +32,9 @@ jobs:
         with:
           azcliversion: 2.44.1
           inlineScript: |
-            echo "ACRNAME='${{vars.RESOURCE_PREFIX}}acr'" >> $GITHUB_ENV
-            echo "ACCESSTOKEN=$(az acr login --name '$ACRNAME' --expose-token --query accessToken -o tsv)" >> $GITHUB_ENV
+            acrName="${{vars.RESOURCE_PREFIX}}acr"
+            echo "ACRNAME=$acrName" >> $GITHUB_ENV
+            echo "ACCESSTOKEN=$(az acr login --name '$acrName' --expose-token --query accessToken -o tsv)" >> $GITHUB_ENV
       - name: helm package and push
         run: |
           helm package "./helm/scaled-azdo-build-agent" --app-version "${{env.HELM_APP_VERSION}}" --version "${{env.HELM_CHART_VERSION}}"
