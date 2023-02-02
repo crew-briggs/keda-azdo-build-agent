@@ -55,12 +55,12 @@ jobs:
       - name: disable placeholder agent
         run: |
           agentPool="${{env.AZDO_AGENT_POOL}}"
-          agentName="${{env.HELM_RELEASE_NAME}-scaled-azdo-build-agent-placeholder"
+          agentName="${{env.HELM_RELEASE_NAME}}-scaled-azdo-build-agent-placeholder"
           echo "$agentName"
           
           poolId=$(curl -f -s -u :${{secrets.AZDO_PAT}} "${{ecrets.AZDO_URL}}/_apis/distributedtask/pools?poolName=$agentPool&api-version=7.1-preview.1" | jq ".value[0].id")
           echo "pool id: $poolId"
-          
+
           agentId=$(curl -f -s -u :${{secrets.AZDO_PAT}} "${{ecrets.AZDO_URL}}/_apis/distributedtask/pools/$poolId/agents?api-version=7.1-preview.1" | jq -r ".value | map(select(.name == \"$agentName\")) | .[0] | .id")
           echo "agentId id: $agentId"
 
