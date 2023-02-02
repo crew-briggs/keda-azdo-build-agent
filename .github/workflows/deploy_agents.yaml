@@ -58,13 +58,13 @@ jobs:
           agentName="${{env.HELM_RELEASE_NAME}}-scaled-azdo-build-agent-placeholder"
           echo "$agentName"
           
-          poolId=$(curl -f -s -u :${{secrets.AZDO_PAT}} "${{ecrets.AZDO_URL}}/_apis/distributedtask/pools?poolName=$agentPool&api-version=7.1-preview.1" | jq ".value[0].id")
+          poolId=$(curl -f -s -u :${{secrets.AZDO_PAT}} "${{secrets.AZDO_URL}}/_apis/distributedtask/pools?poolName=$agentPool&api-version=7.1-preview.1" | jq ".value[0].id")
           echo "pool id: $poolId"
 
-          agentId=$(curl -f -s -u :${{secrets.AZDO_PAT}} "${{ecrets.AZDO_URL}}/_apis/distributedtask/pools/$poolId/agents?api-version=7.1-preview.1" | jq -r ".value | map(select(.name == \"$agentName\")) | .[0] | .id")
+          agentId=$(curl -f -s -u :${{secrets.AZDO_PAT}} "${{secrets.AZDO_URL}}/_apis/distributedtask/pools/$poolId/agents?api-version=7.1-preview.1" | jq -r ".value | map(select(.name == \"$agentName\")) | .[0] | .id")
           echo "agentId id: $agentId"
 
-          curl -s -f -u :${{secrets.AZDO_PAT}} -X PATCH -d "{ \"id\": \"$agentId\", \"enabled\": \"false\", \"status\": \"offline\"}" -H "Content-Type: application/json" "${{ecrets.AZDO_URL}}/_apis/distributedtask/pools/$poolId/agents/$agentId?api-version=7.1-preview.1"
+          curl -s -f -u :${{secrets.AZDO_PAT}} -X PATCH -d "{ \"id\": \"$agentId\", \"enabled\": \"false\", \"status\": \"offline\"}" -H "Content-Type: application/json" "${{secrets.AZDO_URL}}/_apis/distributedtask/pools/$poolId/agents/$agentId?api-version=7.1-preview.1"
 
 
 
