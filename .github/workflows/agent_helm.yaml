@@ -33,9 +33,9 @@ jobs:
           azcliversion: 2.44.1
           inlineScript: |
             acrName="${{vars.RESOURCE_PREFIX}}acr"
-            echo "ACRNAME=$acrName" >> $GITHUB_ENV
+            echo "ACRNAME=$( echo $acrName )" >> $GITHUB_ENV
             accessToken = $(az acr login --name "$acrName" --expose-token --query accessToken -o tsv)
-            echo "ACCESSTOKEN=$accessToken" >> $GITHUB_ENV
+            echo "ACCESSTOKEN=$(echo $accessToken)" >> $GITHUB_ENV
       - name: helm package and push
         run: |
           echo ${{ env.ACRNAME }} 
