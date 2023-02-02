@@ -33,7 +33,7 @@ jobs:
         with:
           azcliversion: 2.44.1
           inlineScript: |
-            accessToken=$(az acr login --name "$acrName" --expose-token --query accessToken -o tsv)
+            accessToken=$(az acr login --name "${{env.ACRNAME}}" --expose-token --query accessToken -o tsv)
             echo "ACCESSTOKEN=$accessToken" >> $GITHUB_ENV
       - name: helm package and push
         run: |
